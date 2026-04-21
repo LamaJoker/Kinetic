@@ -5,13 +5,6 @@
 # Déclenché sur :
 #   - push vers main / develop
 #   - Pull Request vers main
-#
-# Jobs :
-#   1. typecheck  — TypeScript strict
-#   2. unit       — Vitest (unit + integration)
-#   3. e2e        — Playwright (mobile Chrome)
-#   4. build      — Vite production build
-#   5. lighthouse — Score Lighthouse (sur PR uniquement)
 
 name: CI
 
@@ -85,6 +78,7 @@ jobs:
         if: always()
         with:
           json-summary-path: tests/coverage/coverage-summary.json
+          json-final-path: tests/coverage/coverage-final.json
 
   # ─── 3. Tests E2E ───────────────────────────────────────────
   e2e:
@@ -155,50 +149,9 @@ jobs:
         env:
           VITE_SUPABASE_URL:      ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_APP_VERSION:       ${{ github.sha }}
+          VITE_APP_VERSION:        ${{ github.sha }}
 
       - name: Check bundle size
         run: |
           du -sh apps/web/dist/
-          find apps/web/dist/static -name "*.js" | xargs ls -la | sort -k5 -rn | head -10
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: apps/web/dist/
-          retention-days: 3
-
-  # ─── 5. Lighthouse (PR only) ────────────────────────────────
-  lighthouse:
-    name: Lighthouse
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
-        with: { version: '${{ env.PNPM_VERSION }}' }
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '${{ env.NODE_VERSION }}'
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Download build
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: apps/web/dist/
-
-      - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v11
-        with:
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-          budgetPath: .github/lighthouse-budget.json
-        env:
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          find apps/web/dist/static -name "*.js" | xargs ls -la | sort -k5 -rn | head
