@@ -76,9 +76,10 @@ export default async function handler(request: Request): Promise<Response> {
     return new Response('No valid metrics', { status: 422 });
   }
 
-  // Stocker dans Supabase
-  const supabaseUrl = process.env['SUPABASE_URL'];
-  const supabaseKey = process.env['SUPABASE_SERVICE_ROLE_KEY']; // Service role pour bypass RLS
+  // Fix : Accès aux variables d'environnement via le pattern Edge standard (globalThis)
+  const env = (globalThis as unknown as Record<string, string>);
+  const supabaseUrl = env['SUPABASE_URL'] ?? '';
+  const supabaseKey = env['SUPABASE_SERVICE_ROLE_KEY'] ?? '';
 
   if (supabaseUrl && supabaseKey) {
     const urlPath = typeof payload.url === 'string'
@@ -86,10 +87,10 @@ export default async function handler(request: Request): Promise<Response> {
       : '/';
 
     const rows = validMetrics.map((m) => ({
-      name:     m.name,
-      value:    Math.round(m.value * 100) / 100,
-      rating:   m.rating,
-      url_path: urlPath,
+      name:      m.name,
+      value:     Math.round(m.value * 100) / 100,
+      rating:    m.rating,
+      url_path:  urlPath,
     }));
 
     try {
@@ -108,7 +109,7 @@ export default async function handler(request: Request): Promise<Response> {
         console.error('[vitals] Supabase insert failed:', res.status);
       }
     } catch (err) {
-      // Non-bloquant — ne pas faire échouer la réponse client
+      // Non-bloquant — on ne veut pas impacter l'expérience utilisateur si le log échoue
       console.error('[vitals] Fetch error:', err);
     }
   }
