@@ -1,3 +1,10 @@
+/**
+ * apps/web/src/stores/xp.ts
+ *
+ * Gestion du système de progression et d'expérience (XP).
+ * Utilise un tableau de paliers avec calcul dynamique du niveau.
+ */
+
 import Alpine from 'alpinejs';
 import { getDeps } from '../deps.js';
 
@@ -6,15 +13,19 @@ const LEVELS = [
   { level: 2, title: 'Apprenti',  threshold: 200  },
   { level: 3, title: 'Confirmé',  threshold: 500  },
   { level: 4, title: 'Expert',    threshold: 1000 },
-  { level: 5, title: 'Elite',     threshold: 2000 },
+  { level: 5, title: 'Elite',      threshold: 2000 },
   { level: 6, title: 'Champion',  threshold: 3500 },
   { level: 7, title: 'Maître',    threshold: 5500 },
   { level: 8, title: 'Légende',   threshold: 8000 },
 ] as const;
 
+// Type helper pour les membres du tableau LEVELS
+type LevelConfig = (typeof LEVELS)[number];
+
 function computeLevel(totalXp: number) {
-  let current = LEVELS[0]!;
-  let next: (typeof LEVELS)[number] | undefined;
+  // Fix TS2322 : On définit explicitement le type comme étant l'union des niveaux
+  let current: LevelConfig = LEVELS[0]!;
+  let next: LevelConfig | undefined;
 
   for (let i = 0; i < LEVELS.length; i++) {
     if (totalXp >= LEVELS[i]!.threshold) {
@@ -29,9 +40,9 @@ function computeLevel(totalXp: number) {
 
   return {
     currentLevel:    current.level,
-    title:           current.title,
+    title:            current.title,
     progressPercent: progressPct,
-    remaining:       next ? next.threshold - totalXp : 0,
+    remaining:        next ? next.threshold - totalXp : 0,
     isMaxLevel:      !next,
   };
 }
@@ -74,7 +85,7 @@ export function xpStore() {
     /**
      * award — crédite du XP avec guard idempotence.
      * @param amount   Quantité de XP
-     * @param key      Clé d'idempotence (ex: "vitalite:task-id:2026-04-20")
+     * @param key      Clé d'idempotence (ex: "task-123:2026-04-21")
      */
     async award(amount: number, key?: string) {
       if (amount <= 0) return;
@@ -105,7 +116,7 @@ export function xpStore() {
       // Persister
       const deps = await getDeps();
       await deps.storage.set('kinetic:xp', {
-        xp:          newXp,
+        xp:           newXp,
         awardedKeys: [...this._awardedKeys],
       });
     },
