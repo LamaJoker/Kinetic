@@ -1,15 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { StoragePort, StorageKey } from '@kinetic/core';
-import type { Database, Json } from './database.types.js';  // ← ajouter Json
+import type { Database, Json } from './database.types.js';
 
-/**
- * SupabaseStorage — StoragePort qui synchronise avec Supabase.
- *
- * Stratégie offline-first :
- *   1. Lecture → toujours depuis IDB (rapide, hors-ligne).
- *   2. Écriture → IDB immédiatement + Supabase en arrière-plan.
- *   3. Sync → au démarrage et à la reconnexion réseau.
- */
 export class SupabaseStorage implements StoragePort {
   constructor(
     private readonly client: SupabaseClient<Database>,
@@ -31,23 +23,12 @@ export class SupabaseStorage implements StoragePort {
   async set<T>(key: StorageKey, value: T): Promise<void> {
     const { error } = await this.client
       .from('user_storage')
-      async set<T>(key: StorageKey, value: T): Promise<void> {
-  const { error } = await this.client
-    .from('user_storage')
-    .upsert(
-      {
-        user_id: this.userId,
-        key,
-        value: value as Json,          // ← cast direct vers Json, pas via Insert
-      },
-      { onConflict: 'user_id,key' },
-    );
-
-  if (error) {
-    console.error('[SupabaseStorage] set failed:', error.message);
-    throw new Error(error.message);
-  }
-}
+      .upsert(
+        {
+          user_id: this.userId,
+          key,
+          value: value as Json,
+        },
         { onConflict: 'user_id,key' },
       );
 
