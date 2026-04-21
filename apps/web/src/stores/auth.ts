@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js'; // ← Import des types
 import {
   supabase, getAuthUser, signInWithEmail,
   signInWithGitHub, signInWithGoogle, signOut,
@@ -10,10 +11,10 @@ export function authStore() {
   return {
     user: null as { id: string; email: string | null; full_name: string | null; avatar_url: string | null } | null,
     loading:       true,
-    error:         null as string | null,
+    error:          null as string | null,
     magicLinkSent: false,
     emailInput:    '',
-    emailMode:     false,
+    emailMode:      false,
 
     async init() {
       this.user    = await getAuthUser();
@@ -21,7 +22,8 @@ export function authStore() {
 
       if (!supabase) return;
 
-      supabase.auth.onAuthStateChange(async (_event, session) => {
+      // Correction du typage implicite 'any'
+      supabase.auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
         if (session?.user) {
           this.user = await getAuthUser();
         } else {
