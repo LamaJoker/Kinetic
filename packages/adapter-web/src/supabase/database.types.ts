@@ -1,7 +1,11 @@
-/**
- * Types générés depuis le schéma Supabase.
- * En production : supabase gen types typescript --project-id <id> > database.types.ts
- */
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
 export interface Database {
   public: {
     Tables: {
@@ -9,19 +13,20 @@ export interface Database {
         Row: {
           user_id: string;
           key: string;
-          value: unknown;
+          value: Json | null;
           updated_at: string;
         };
         Insert: {
           user_id: string;
           key: string;
-          value: unknown;
+          value?: Json | null;
           updated_at?: string;
         };
         Update: {
-          value?: unknown;
+          value?: Json | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       profiles: {
         Row: {
@@ -42,9 +47,12 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
         };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 }
