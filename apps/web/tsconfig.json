@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir":    "./dist",
+    "rootDir":   "./src",
+    "composite": true,
+    "types":     ["vite/client"]
+  },
+  "include": ["src", "api"],
+  "references": [
+    { "path": "../../packages/core" },
+    { "path": "../../packages/adapter-web" }
+  ]
+}

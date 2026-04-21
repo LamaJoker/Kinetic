@@ -1,0 +1,94 @@
+{
+  "buildCommand":    "pnpm --filter @kinetic/web build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand":  "pnpm install",
+  "framework":       null,
+  "regions":         ["cdg1"],
+
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key":   "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+        },
+        {
+          "key":   "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key":   "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key":   "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key":   "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(self), notifications=(self)"
+        },
+        {
+          "key":   "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key":   "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key":   "Cross-Origin-Embedder-Policy",
+          "value": "require-corp"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key":   "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key":   "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key":   "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.html)",
+      "headers": [
+        {
+          "key":   "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        {
+          "key":   "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ],
+
+  "rewrites": [
+    {
+      "source":      "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
