@@ -12,7 +12,7 @@ export default defineConfig({
 
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'json-summary'],
+      reporter: ['text', 'html', 'json', 'json-summary'], // 'json' ajouté ici
       reportsDirectory: 'tests/coverage',
       thresholds: {
         lines: 80,
